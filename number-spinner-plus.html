@@ -110,16 +110,26 @@ border-color: transparent transparent #AAAAAA transparent;
       },
       is: 'number-spinner-plus',
       _up:function() {
-          if (this.value<this.max) {                          //MODIFICA: IF di controllo per valutare se ha raggiunto il max
-            this.value+=1;
-          }                                                   //Fine IF
+          if (this.value<this.max) {                          //MODIFICA (Max): IF di controllo per valutare se ha raggiunto il max
+            if(this.value+this.step<this.max){                //MODIFICA (Step): Controlla che valore+step non ecceda positivamente
+              this.value=this.value+this.step;
+            }
+            else {
+              this.value=this.max;
+            }                                                 //Fine controllo step
+          }                                                   //Fine IF MAX
           this.toggleAttribute("active",true,this.$.spinner);
 
       },
       _down:function() {
-          if (this.value>this.min) {                          //MODIFICA: IF di controllo per valutare se ha raggiunto il min
-            this.value-=1;
-          }                                                   //Fine IF
+          if (this.value>this.min) {                          //MODIFICA: (Min): IF di controllo per valutare se ha raggiunto il min
+            if(this.value-this.step>this.min){                //MODIFICA (Step): Controlla che valore-step non ecceda negativamente
+              this.value=this.value-this.step;
+            }
+            else {
+              this.value=this.min;
+            }                                                 //Fine controllo step
+          }                                                   //Fine IF MIN
           this.toggleAttribute("active",true,this.$.spinner);
 
 
@@ -128,7 +138,8 @@ border-color: transparent transparent #AAAAAA transparent;
           value:{value:3,type:Number,notify:true},
           label:{value:"Value"},
           min:{value:0},
-          max:{value:10}
+          max:{value:10},
+          step:{value:1}
       },
 
     });
