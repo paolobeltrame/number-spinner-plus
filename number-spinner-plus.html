@@ -109,31 +109,21 @@ border-color: transparent transparent #AAAAAA transparent;
         this.toggleAttribute("active",false,this.$.spinner);
       },
       is: 'number-spinner-plus',
+
       _up:function() {
           if (this.value<this.max) {                          //MODIFICA (Max): IF di controllo per valutare se ha raggiunto il max
-            if(this.value+this.step<this.max){                //MODIFICA (Step): Controlla che valore+step non ecceda positivamente
-              this.value=this.value+this.step;
-            }
-            else {
-              this.value=this.max;
-            }                                                 //Fine controllo step
+            this.value=((this.value+this.step<this.max) ? this.value+this.step : this.max);
           }                                                   //Fine IF MAX
           this.toggleAttribute("active",true,this.$.spinner);
-
       },
+
       _down:function() {
           if (this.value>this.min) {                          //MODIFICA: (Min): IF di controllo per valutare se ha raggiunto il min
-            if(this.value-this.step>this.min){                //MODIFICA (Step): Controlla che valore-step non ecceda negativamente
-              this.value=this.value-this.step;
-            }
-            else {
-              this.value=this.min;
-            }                                                 //Fine controllo step
-          }                                                   //Fine IF MIN
+            this.value=((this.value-this.step>this.min) ? this.value-this.step : this.min);
+          }                                                //Fine IF MIN
           this.toggleAttribute("active",true,this.$.spinner);
-
-
       },
+      
       properties: {
           value:{value:3,type:Number,notify:true},
           label:{value:"Value"},
