@@ -1,0 +1,132 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+
+<!--
+`number-spinner-plus`
+
+
+@demo demo/index.html 
+-->
+
+<dom-module id="number-spinner-plus">
+  <template>
+    <style>
+      :host {
+        display: block;
+        --number-spinner-color:red;
+
+      
+        width:fit-content;
+      }
+
+.spinnerContainer {
+         @apply(--layout-vertical);
+}
+
+.spinner {
+           @apply(--layout-horizontal);
+           align-items:center;
+             border-bottom:1px solid #AAAAAA;
+
+
+}
+
+
+.spinner[active] {
+               border-bottom:1px solid var(--number-spinner-color);
+
+}
+
+      input {
+        line-height:16px;
+        font-size:14px;
+        min-width: 160px;
+        border:0px;
+        text-align:right;
+      }
+
+
+      iron-icon {
+          height:8px;
+          width:8px;
+      }
+      input:focus {
+        outline: none;
+        border:0px;
+      }
+
+
+          .down {
+            width: 0;
+height: 0;
+border-style: solid;
+border-width: 6px 4px 0 4px;
+border-color: #AAAAAA transparent transparent transparent;
+          }
+.spin {
+  cursor:pointer;
+}
+
+
+
+
+.down:hover {
+  border-color:red transparent transparent transparent;
+}
+
+.up:hover {
+  border-color: transparent transparent red transparent;
+}
+      .up {
+        width: 0;
+height: 0;
+border-style: solid;
+border-width: 0 4px 6px 4px;
+border-color: transparent transparent #AAAAAA transparent;
+      }
+    </style>
+<div class="spinner" id="spinner">
+  <div>[[label]]</div>
+    <input id="input" value="{{value}}" on-focus="_openDropdown" on-focusout="_closeDropdown">
+    <div style="width:8px"></div>
+    <div class="spinnerContainer">
+      <div><div class="spin up" on-tap="_up" on-mouseout="_closeDropdown"></div></div>
+      <div style="height:2px;"></div>
+      <div><div class="spin down" on-tap="_down" on-mouseout="_closeDropdown"></div></div>
+    </div>
+    <div>
+  </template>
+
+  <script>
+    Polymer({
+       _openDropdown:function(e) {
+        this.toggleAttribute("active",true,this.$.spinner);
+
+
+      },
+      _closeDropdown:function(e) {
+        this.toggleAttribute("active",false,this.$.spinner);
+      },
+      is: 'number-spinner-plus',
+      _up:function() {
+          this.value+=1
+                  this.toggleAttribute("active",true,this.$.spinner);
+
+      },
+      _down:function() {
+          this.value-=1
+                  this.toggleAttribute("active",true,this.$.spinner);
+
+
+      },
+      properties: {
+          value:{value:3,type:Number,notify:true},
+          label:{value:"Value"},
+          min:{value:0},
+          max:{value:10}
+      },
+
+    });
+  </script>
+</dom-module>
