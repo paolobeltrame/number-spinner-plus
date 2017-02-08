@@ -110,13 +110,17 @@ border-color: transparent transparent #AAAAAA transparent;
       },
       is: 'number-spinner-plus',
       _up:function() {
-          this.value+=1
-                  this.toggleAttribute("active",true,this.$.spinner);
+          if (this.value<this.max) {                          //MODIFICA: IF di controllo per valutare se ha raggiunto il max
+            this.value+=1;
+          }                                                   //Fine IF
+          this.toggleAttribute("active",true,this.$.spinner);
 
       },
       _down:function() {
-          this.value-=1
-                  this.toggleAttribute("active",true,this.$.spinner);
+          if (this.value>this.min) {                          //MODIFICA: IF di controllo per valutare se ha raggiunto il min
+            this.value-=1;
+          }                                                   //Fine IF
+          this.toggleAttribute("active",true,this.$.spinner);
 
 
       },
