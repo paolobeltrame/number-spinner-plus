@@ -4,17 +4,20 @@
 <link rel="import" href="../bower_components/iron-input/iron-input.html">
 <link rel="import" href="../bower_components/message-container/message-container.html">
 
-
-
 <!--
 `number-spinner-plus`
 
 
-@demo demo/index.html 
+@demo demo/index.html
 -->
 
 <dom-module id="number-spinner-plus">
   <template>
+<!--
+
+  STYLE PROPRETIES
+
+-->
     <style>
         :host {
             display: block;
@@ -47,7 +50,6 @@
             width:fit-content;
         }
 
-
         message-container {
             /*ERROR MESSAGE PROPERTIES*/
             --message-container-error-text-color:var(--number-spinner-error-text-color);
@@ -71,9 +73,10 @@
             --message-container-warning-box-shadow:var(--number-spinner-warning-box-shadow);      
         }
 
+        /*SPINNER CONTAINER PROPERTIES*/
         .spinnerContainer {
             @apply(--layout-vertical);
-            
+             ----------------
         }
 
         .spinner {
@@ -82,11 +85,11 @@
             border-bottom:1px solid #AAAAAA;
         }
 
-
         .spinner[active] {
             border-bottom:1px solid var(--number-spinner-color);
-        }        
+        }      
 
+        /*INPUT PROPRETIES*/
         input {
             line-height:16px;
             font-size:14px;
@@ -99,19 +102,23 @@
         input[discrete] {
           pointer-events:none;
         }
-        
 
+        input:focus {
+            outline: none;
+            border:0px;
+        }        
+
+        /*ICON PROPERTIES*/
         iron-icon {
             height:8px;
             width:8px;
         }
 
-        input:focus {
-            outline: none;
-            border:0px;
+        .spin {
+            cursor:pointer;
         }
 
-
+        /*DOWN BUTTON PROPERTIES*/
         .down {
             width: 0;
             height: 0;
@@ -123,21 +130,13 @@
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none; 
-
-        }
-
-        .spin {
-            cursor:pointer;
         }
 
         .down:hover {
             border-color:red transparent transparent transparent;
         }
 
-        .up:hover {
-            border-color: transparent transparent red transparent;
-
-        }
+        /*UP BUTTON PROPERTIES*/
         .up {
             width: 0;
             height: 0;
@@ -150,8 +149,17 @@
             -moz-user-select: none;
             -ms-user-select: none; 
         }
+
+        .up:hover {
+            border-color: transparent transparent red transparent;
+        }
     </style>
-    
+
+<!--
+
+  SPINNER IMPLEMENTATION (HTML)
+
+--> 
     <div class="spinner" id="spinner">
         <div>[[label]]</div>
         <input id="input" is="iron-input" prevent-invalid-input allowed-pattern="[0-9]" value="{{value::change}}" on-focus="_openDropdown" on-focusout="_closeDropdown" discrete$="[[discrete]]">
@@ -165,18 +173,32 @@
     <message-container content="[[value]]" enable-denied=true denied-charset="[^0-9]" enable-number-limit=true min-num-allowed=1 max-number-allowed=100 enable-number-limit-warning=true></message-container>
   </template>
 
+<!--
+
+  SPINNER ENGINE (Polymer)
+
+--> 
   <script>
     Polymer({
-      
-     /* _controlValueInserted:function()  {
-        console.log("STO CONTROLLANDO IL VALORE INSERITO");
-        var denied = new RegExp ("[^0-9]");
-        if(denied.test(this.value)) {
-          this.errorFlag="notNumberError";
-          console.log("FLAG settato a "+this.errorFlag)
+
+      is: 'number-spinner-plus',
+
+      /*READY FUNCTION: If is a discrete spinner, inizialize the index, if is a auto-sorting spinner, sort numbers*/
+      ready:function() { 
+        if(this.discrete){
+          this.value=this.values[this.initialIndex];
+          this.indexVisualized=this.initialIndex;
+          if(this.autoSort) {
+            values.sort();
+          };
         };
-      },*/
-      
+      },
+
+      /*OBSERVER: For future features*/
+      _controlValueInserted:function(e) {
+      },
+
+      /*DROPDOWN FUNCTIONS*/
        _openDropdown:function(e) {
         this.toggleAttribute("active",true,this.$.spinner);
       },
@@ -184,94 +206,132 @@
       _closeDropdown:function(e) {
         this.toggleAttribute("active",false,this.$.spinner);
       },
-      
-      is: 'number-spinner-plus',
 
+      /*BUTTON UP FUNCTION*/
       _up:function() {
+        /*NOT DISCRETE: Free numbers, allow min/max*/
         if(!this.discrete) {
-          this.value=((+this.value+this.step<this.max) ? +this.value+this.step : this.max);     //Se raggiunge il MAX con lo step lo setta a MAX (non supera)
-          
+          /*If it reaches the MAX with step then sets the value to MAX (do not exceed)*/
+          this.value=((+this.value+this.step<this.max) ? +this.value+this.step : this.max);
         }
+        /*DISCRETE: Values fixed*/
         else {
-          if(this.values.indexOf(this.value)<this.values.length-1){
-            this.value=this.values[this.values.indexOf(this.value)+1]; //ATTENZIONE: Scorre stringhe perchè se no non riconosce più l'elemento e perde l'indice!
-          }      
+          if(this.indexVisualized<this.values.length-1){
+            this.value=this.values[this.indexVisualized+1];
+            this.indexVisualized=this.indexVisualized+1;
+          }
+          else{
+            /*CIRCULAR FEATURE*/
+            if(this.circular)
+            {
+              this.value=this.values[0];
+              this.indexVisualized=0;
+            };
+          };    
         };
-        console.log(this.$.input.validate());
         this.toggleAttribute("active",true,this.$.spinner);    
       },
 
+      /*BUTTON DOWN FUNCTION*/
       _down:function() {
+        /*NOT DISCRETE: Free numbers, allow min/max*/
         if(!this.discrete) {
+          /*If it reaches the MIN with step then sets the value to MIN (do not exceed)*/
           this.value=((+this.value-this.step>this.min) ? +this.value-this.step : this.min);     //Se raggiunge il MIN con lo step lo setta a MIN (non supera)
         }
+        /*DISCRETE: Values fixed*/
         else {
-          if(this.values.indexOf(this.value)>0){
-            this.value=this.values[this.values.indexOf(this.value)-1];
+          if(this.indexVisualized>0){
+            this.value=this.values[this.indexVisualized-1];
+            this.indexVisualized=this.indexVisualized-1;
+          }
+          else{
+            /*CIRCULAR FEATURE*/
+            if(this.circular)
+            {
+              this.value=this.values[this.values.length-1];
+              this.indexVisualized=this.values.length-1;
+            };
           };
-        };
-        
+        }; 
         this.toggleAttribute("active",true,this.$.spinner);
       },
-           
+
+      /*NUMBER-SPINNER PROPERTIES*/
       properties: {
-          
+
+          /*VALUE*/
+          value:{
+            value:null,
+            notify:true,
+            observer:"_controlValueInserted", //OBSERVER for future new features
+          },
+
           values:{
             type:Array,
             value:["-10","10", "50", "90","110"],
-            },
-          
-          allowed:{
-            type:Boolean,
-            value:true,
           },
-          
-          value:{
-            value:10,
-            notify:true,
-            observer:"_controlValueInserted",
-          },
-          
+
+          /*LABEL*/
           label:{
             type:String,
             value:"Value",
           },
-          
+
+          /*CONTINUOS PROPERTIES*/
           min:{
             type:Number,
             value:0,
           },
-          
+
           max:{
             type:Number,
             value:100,
           },
-          
+
           step:{
             type:Number,
-            value:1,
-            
+            value:1, 
           },
-          
-          spinnerType:{
-            type:String,
-            value:"Number",
-            },
-          
+
+          /*DISCRETE PROPERTIES*/
+          indexVisualized:{
+            type:Number,
+            value:0,
+            notify:true,
+          },
+
+          initialIndex:{
+            type:Number,
+            value:0,
+          },
+
+          circular:{
+            type:Boolean,
+            value:false,
+          },
+
+          autoSort:{
+            type:Boolean,
+            value:false,
+          },
+
+          /*FLAGS*/
+          allowed:{
+            type:Boolean,
+            value:true,
+          },
+
           discrete:{
             type:Boolean,
             value:false,
           },
-          
-          errorFlag:{
-            type:String,
-            value:null,
-          },
-          
-          indexOf:{
-            type:Number,
-            value:0,
-            notify:true,
+
+          errors:{
+            type:Object,
+            value:[{name:"notInListError",   message:"The selected number has not been in the list",  flag:false},
+                     {name:"maxExceededError", message:"The maximum number has been exceeded",          flag:false},      
+                     {name:"minExceededError", message:"The mininum number has been exceeded",          flag:false}],   
           },
       },
     });
