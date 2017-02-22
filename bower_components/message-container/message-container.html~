@@ -1,3 +1,4 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <dom-module id="message-container">
@@ -36,8 +37,8 @@
         }
       </style>
 
-      <div class$="[[generateClass(errorFlag,warningFlag,message)]]">
-        <i class$="[[generateMessageIcon(errorFlag,warningFlag,message)]]"></i> [[generateMessage(errorFlag,warningFlag,message)]]
+      <div class$="[[generateClass()]]">
+        <i class$="[[generateMessageIcon()]]"></i> [[generateMessage()]]
       </div>
       
   </template>
@@ -48,13 +49,13 @@
             is: 'message-container',
             
             // FUNTCION generateClass: Generate the correct class
-            generateClass:function (errorFlag,warningFlag) {
+            generateClass:function () {
                 
                 // 1. CHOOSE THE CORRECT CLASS
-                if (errorFlag) {
+                if (this.errorFlag) {
                   return "message error";
                 }
-                else if (warningFlag) {
+                else if (this.warningFlag) {
                   return "message warning";
                 }
                 else {
@@ -68,17 +69,15 @@
             },    
 
             // FUNTCION generateMessage: Generate the correct message
-            generateMessage:function (errorFlag,warningFlag,message) {  
-               console.log("Sono passato per generateMessage con errorFlag "+this.errorFlag);
+            generateMessage:function () {  
+               
                 // 1. CHOOSE THE CORRECT MESSAGE
                 if (this.errorFlag||this.warningFlag) {
-                  console.log("il messaggio è "+this.message);
                   return this.message;
                 }
                 else {
                   if (!this.hideOk) {
                     return this.okMessage;
-                    console.log(this.okMessage);
                   }
                   else {
                     return null;
@@ -87,7 +86,7 @@
             }, 
 
             // FUNTCION generateClass: Generate the correct icon. Future feature: CSS implementation (icon customizable)
-            generateMessageIcon:function (errorFlag,warningFlag,message) {
+            generateMessageIcon:function () {
                 
                 // 1. CHOOSE THE CORRECT CLASS
                 if (this.errorFlag) {
@@ -105,14 +104,11 @@
                     };
                 };
             },       
-            _mC:function(e) {
-              console.log(e)
-            },
+        
             properties:{
               message:{
                 type:String,
                 value:"ERR/WARN",
-                observer:"_mC"
               },
               
               // ERROR PROPRETIES
@@ -124,7 +120,7 @@
               // OK PROPRETIES
               hideOk:{
                 type:Boolean,
-                value:false,
+                value:true,
               },
               
               okMessage:{

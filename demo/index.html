@@ -20,13 +20,12 @@
       <h3>Basic number-spinner-plus demo</h3>
       <demo-snippet>
         <template>
-          <div>In this number-spinner-plus, numbers from 25 to 75 are allowed, numbers from 0 to 25 and from 75 to 100 are warned, other numbers are denied.</div>
-          <p> </p>
-          <number-spinner-plus value=50></number-spinner-plus> 
-          <p> </p>
-          <div>In this number-spinner-plus, only numbers in the list are allowed (-10, 10, 50, 90, 110). Same error/warnings rules.</div>
-          <p> </p>          
-          <number-spinner-plus discrete value=-10></number-spinner-plus>
+          <div>In this number-spinner-plus, numbers between 0 and 100 are allowed, other numbers are denied.</div>
+          <number-spinner-plus label="Continuos values" value=50 min=0 max=100></number-spinner-plus> 
+          <div>In this number-spinner-plus, the step is set to 5, return a warning if the number is not divisible by 5. Numbers between 0 and 100 are allowed, other numbers are denied.</div>
+          <number-spinner-plus label="Stepped values" value=50 min=0 max=100 step="5"></number-spinner-plus>
+          <div>In this number-spinner-plus, only numbers in the list are allowed (-10, 10, 50, 90, 110), other numbers are denied.</div>
+          <number-spinner-plus label="List values" discrete values="[-10,10,30,50,70,90,110]"></number-spinner-plus>
         </template>
       </demo-snippet>
      

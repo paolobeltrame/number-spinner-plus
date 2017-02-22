@@ -2,6 +2,7 @@
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../bower_components/number-spinner-validator-plus/number-spinner-validator-plus.html">
 <link rel="import" href="../bower_components/message-container/message-container.html">
 
 <!--
@@ -23,21 +24,20 @@
             display: block;
             --number-spinner-color:red;
             /* FOR MODIFY MESSAGE CONTAINER PROPRETIES
+            --number-spinner-message-text-size:size;
+
             --number-spinner-error-text-color:color;
             --number-spinner-error-background-color:color;
-            --number-spinner-error-text-size:size;
             --number-spinner-error-border-left:size type color;
             --number-spinner-error-box-shadow: see: http://www.w3schools.com/cssref/css3_pr_box-shadow.asp
 
             --number-spinner-ok-text-color:color;
             --number-spinner-ok-background-color:color;
-            --number-spinner-ok-text-size:size;
             --number-spinner-ok-border-left:size type color;
             --number-spinner-ok-box-shadow: see: http://www.w3schools.com/cssref/css3_pr_box-shadow.asp
 
             --number-spinner-warning-text-color:color;
             --number-spinner-warning-background-color:color;
-            --number-spinner-warning-text-size:size;
             --number-spinner-warning-border-left:size type color;
             --number-spinner-warning-box-shadow: http://www.w3schools.com/cssref/css3_pr_box-shadow.asp
             */
@@ -51,24 +51,23 @@
         }
 
         message-container {
+            --message-container-text-size:var(--number-spinner-message-text-size);
+            
             /*ERROR MESSAGE PROPERTIES*/
             --message-container-error-text-color:var(--number-spinner-error-text-color);
             --message-container-error-background-color:var(--number-spinner-error-background-color);
-            --message-container-error-text-size:var(--number-spinner-error-text-size);
             --message-container-error-border-left:var(--number-spinner-error-border-left);
             --message-container-error-box-shadow:var(--number-spinner-error-box-shadow);              
 
             /*OK MESSAGE PROPERTIES*/
             --message-container-ok-text-color:var(--number-spinner-ok-text-color);
             --message-container-ok-background-color:var(--number-spinner-ok-background-color);
-            --message-container-ok-text-size:var(--number-spinner-ok-text-size);
             --message-container-ok-border-left:var(--number-spinner-ok-border-left);
             --message-container-ok-box-shadow:var(--number-spinner-ok-box-shadow);             
            
             /* WARNING MESSAGE PROPERTIES*/
             --message-container-warning-text-color:var(--number-spinner-warning-text-color);
             --message-container-warning-background-color:var(--number-spinner-warning-background-color);
-            --message-container-warning-text-size:var(--number-spinner-warning-text-size);
             --message-container-warning-border-left:var(--number-spinner-warning-border-left);
             --message-container-warning-box-shadow:var(--number-spinner-warning-box-shadow);      
         }
@@ -162,7 +161,7 @@
 --> 
     <div class="spinner" id="spinner">
         <div>[[label]]</div>
-        <input id="input" is="iron-input" prevent-invalid-input allowed-pattern="[0-9]" value="{{value::change}}" on-focus="_openDropdown" on-focusout="_closeDropdown" discrete$="[[discrete]]">
+        <input id="input" is="iron-input" prevent-invalid-input allowed-pattern="[0-9.+-]" value="{{value::change}}" on-focus="_openDropdown" on-focusout="_closeDropdown" discrete$="[[discrete]]">
         <div style="width:8px"></div>
         <div class="spinnerContainer">
             <div><div class="spin up" on-tap="_up" on-mouseout="_closeDropdown"></div></div>
@@ -170,7 +169,8 @@
             <div><div class="spin down" on-tap="_down" on-mouseout="_closeDropdown"></div></div>
         </div>
     </div>    
-    <message-container content="[[value]]" enable-denied=true denied-charset="[^0-9]" enable-number-limit=true min-num-allowed=1 max-number-allowed=100 enable-number-limit-warning=true></message-container>
+    <number-spinner-validator-plus value="{{value}}" allowed-numbers="[[values]]" min-error="[[min]]" max-error="[[max]]" step-warning="[[step]]" initial-value="[[initialValue]]" error-flag="{{errorFlag}}" warning-flag="{{warningFlag}}" message="{{message}}"></number-spinner-validator-plus>
+    <message-container error-flag="[[errorFlag]]" warning-flag="[[warningFlag]]" message="[[message]]"></message-container>
   </template>
 
 <!--
@@ -183,7 +183,7 @@
 
       is: 'number-spinner-plus',
 
-      /*READY FUNCTION: If is a discrete spinner, inizialize the index, if is a auto-sorting spinner, sort numbers*/
+      // READY FUNCTION: If is a discrete spinner, inizialize the index, if is a auto-sorting spinner, sort numbers*/
       ready:function() { 
         if(this.discrete){
           this.value=this.values[this.initialIndex];
@@ -192,13 +192,14 @@
             values.sort();
           };
         };
+        this.initialValue=this.value;
       },
 
-      /*OBSERVER: For future features*/
+      // OBSERVER: For future features
       _controlValueInserted:function(e) {
       },
 
-      /*DROPDOWN FUNCTIONS*/
+      // DROPDOWN FUNCTIONS
        _openDropdown:function(e) {
         this.toggleAttribute("active",true,this.$.spinner);
       },
@@ -207,21 +208,21 @@
         this.toggleAttribute("active",false,this.$.spinner);
       },
 
-      /*BUTTON UP FUNCTION*/
+      // BUTTON UP FUNCTION
       _up:function() {
-        /*NOT DISCRETE: Free numbers, allow min/max*/
+        // NOT DISCRETE: Free numbers
         if(!this.discrete) {
-          /*If it reaches the MAX with step then sets the value to MAX (do not exceed)*/
+          // If it reaches the MAX with step then sets the value to MAX (do not exceed)
           this.value=((+this.value+this.step<this.max) ? +this.value+this.step : this.max);
         }
-        /*DISCRETE: Values fixed*/
+        // DISCRETE: Values fixed 
         else {
           if(this.indexVisualized<this.values.length-1){
             this.value=this.values[this.indexVisualized+1];
             this.indexVisualized=this.indexVisualized+1;
           }
           else{
-            /*CIRCULAR FEATURE*/
+            // CIRCULAR FEATURE
             if(this.circular)
             {
               this.value=this.values[0];
@@ -232,21 +233,21 @@
         this.toggleAttribute("active",true,this.$.spinner);    
       },
 
-      /*BUTTON DOWN FUNCTION*/
+      // BUTTON DOWN FUNCTION
       _down:function() {
-        /*NOT DISCRETE: Free numbers, allow min/max*/
+        // NOT DISCRETE: Free numbers
         if(!this.discrete) {
-          /*If it reaches the MIN with step then sets the value to MIN (do not exceed)*/
-          this.value=((+this.value-this.step>this.min) ? +this.value-this.step : this.min);     //Se raggiunge il MIN con lo step lo setta a MIN (non supera)
+          // If it reaches the MIN with step then sets the value to MIN (do not exceed)
+          this.value=((+this.value-this.step>this.min) ? +this.value-this.step : this.min);
         }
-        /*DISCRETE: Values fixed*/
+        // DISCRETE: Values fixed
         else {
           if(this.indexVisualized>0){
             this.value=this.values[this.indexVisualized-1];
             this.indexVisualized=this.indexVisualized-1;
           }
           else{
-            /*CIRCULAR FEATURE*/
+            // CIRCULAR FEATURE
             if(this.circular)
             {
               this.value=this.values[this.values.length-1];
@@ -257,36 +258,57 @@
         this.toggleAttribute("active",true,this.$.spinner);
       },
 
-      /*NUMBER-SPINNER PROPERTIES*/
+      // NUMBER-SPINNER PROPERTIES
       properties: {
 
-          /*VALUE*/
+          // VALUE
           value:{
             value:null,
             notify:true,
-            observer:"_controlValueInserted", //OBSERVER for future new features
+            observer:"_controlValueInserted", // OBSERVER for future new features
           },
 
           values:{
             type:Array,
-            value:["-10","10", "50", "90","110"],
+            value:null,
           },
 
-          /*LABEL*/
+          initialValue:{
+            type:Number,
+            value:null,
+          },
+
+          // LABEL
           label:{
             type:String,
             value:"Value",
           },
 
-          /*CONTINUOS PROPERTIES*/
+          // MESSAGE
+          message:{
+            type:String,
+            value:null,
+          },
+
+          // CONTINUOS PROPERTIES
           min:{
             type:Number,
-            value:0,
+            value:null,
           },
 
           max:{
             type:Number,
-            value:100,
+            value:null,
+          },
+
+          min:{
+            type:Number,
+            value:null,
+          },
+
+          max:{
+            type:Number,
+            value:null,
           },
 
           step:{
@@ -294,7 +316,12 @@
             value:1, 
           },
 
-          /*DISCRETE PROPERTIES*/
+          digits:{
+            type:Number,
+            value:null,
+          },
+
+          // DISCRETE PROPERTIES
           indexVisualized:{
             type:Number,
             value:0,
@@ -316,7 +343,7 @@
             value:false,
           },
 
-          /*FLAGS*/
+          // FLAGS
           allowed:{
             type:Boolean,
             value:true,
@@ -327,11 +354,14 @@
             value:false,
           },
 
-          errors:{
-            type:Object,
-            value:[{name:"notInListError",   message:"The selected number has not been in the list",  flag:false},
-                     {name:"maxExceededError", message:"The maximum number has been exceeded",          flag:false},      
-                     {name:"minExceededError", message:"The mininum number has been exceeded",          flag:false}],   
+          errorFlag:{
+            type:Boolean,
+            value:false,
+          },
+
+          warningFlag:{
+            type:Boolean,
+            value:false,
           },
       },
     });
