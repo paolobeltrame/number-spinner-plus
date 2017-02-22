@@ -20,6 +20,7 @@
 
 -->
     <style>
+
         :host {
             display: block;
             --number-spinner-color:red;
@@ -72,16 +73,28 @@
             --message-container-warning-box-shadow:var(--number-spinner-warning-box-shadow);      
         }
 
+        .rowSpinner {
+          width: 100%;
+          @apply(--layout-horizontal);
+        }
+        .columnSpinner {
+          width: 50%;
+          @apply(--layout-horizontal);
+        }
+
         /*SPINNER CONTAINER PROPERTIES*/
         .spinnerContainer {
             @apply(--layout-vertical);
-             ----------------
+            float:right;
         }
+
+        .right {            border-bottom:1px solid #AAAAAA;}
 
         .spinner {
             @apply(--layout-horizontal);
             align-items:center;
-            border-bottom:1px solid #AAAAAA;
+
+            flex-grow:1;
         }
 
         .spinner[active] {
@@ -149,6 +162,10 @@
             -ms-user-select: none; 
         }
 
+        .label {
+          text-transform: lowercase;
+        }
+
         .up:hover {
             border-color: transparent transparent red transparent;
         }
@@ -160,13 +177,19 @@
 
 --> 
     <div class="spinner" id="spinner">
-        <div>[[label]]</div>
-        <input id="input" is="iron-input" prevent-invalid-input allowed-pattern="[0-9.+-]" value="{{value::change}}" on-focus="_openDropdown" on-focusout="_closeDropdown" discrete$="[[discrete]]">
-        <div style="width:8px"></div>
-        <div class="spinnerContainer">
-            <div><div class="spin up" on-tap="_up" on-mouseout="_closeDropdown"></div></div>
-            <div style="height:2px;"></div>
-            <div><div class="spin down" on-tap="_down" on-mouseout="_closeDropdown"></div></div>
+        <div class="rowSpinner">
+          <div class="columnSpinner">
+            <div class="label">[[label]]</div>
+          </div>
+          <div class="columnSpinner right">
+            <input id="input" is="iron-input" prevent-invalid-input allowed-pattern="[0-9.+-]" value="{{value::change}}" on-focus="_openDropdown" on-focusout="_closeDropdown" discrete$="[[discrete]]">
+            <div style="width:8px"></div>
+            <div class="spinnerContainer">
+                <div><div class="spin up" on-tap="_up" on-mouseout="_closeDropdown"></div></div>
+                <div style="height:2px;"></div>
+                <div><div class="spin down" on-tap="_down" on-mouseout="_closeDropdown"></div></div>
+            </div>
+          </div>
         </div>
     </div>    
     <number-spinner-validator-plus value="{{value}}" allowed-numbers="[[values]]" min-error="[[min]]" max-error="[[max]]" step-warning="[[step]]" initial-value="[[initialValue]]" error-flag="{{errorFlag}}" warning-flag="{{warningFlag}}" message="{{message}}"></number-spinner-validator-plus>
