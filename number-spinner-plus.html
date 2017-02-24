@@ -1,9 +1,9 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../bower_components/iron-input/iron-input.html">
-<link rel="import" href="../bower_components/number-spinner-validator-plus/number-spinner-validator-plus.html">
-<link rel="import" href="../bower_components/message-container/message-container.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-input/iron-input.html">
+<link rel="import" href="../number-spinner-validator-plus/number-spinner-validator-plus.html">
+<link rel="import" href="../message-container/message-container.html">
 
 <!--
 `number-spinner-plus`
@@ -22,190 +22,143 @@
     <style>
 
         :host {
+            padding:8px 0px 8px 0px;
             display: block;
             --number-spinner-color:red;
-            /* FOR MODIFY MESSAGE CONTAINER PROPRETIES
-            --number-spinner-message-text-size:size;
-
-            --number-spinner-error-text-color:color;
-            --number-spinner-error-background-color:color;
-            --number-spinner-error-border-left:size type color;
-            --number-spinner-error-box-shadow: see: http://www.w3schools.com/cssref/css3_pr_box-shadow.asp
-
-            --number-spinner-ok-text-color:color;
-            --number-spinner-ok-background-color:color;
-            --number-spinner-ok-border-left:size type color;
-            --number-spinner-ok-box-shadow: see: http://www.w3schools.com/cssref/css3_pr_box-shadow.asp
-
-            --number-spinner-warning-text-color:color;
-            --number-spinner-warning-background-color:color;
-            --number-spinner-warning-border-left:size type color;
-            --number-spinner-warning-box-shadow: http://www.w3schools.com/cssref/css3_pr_box-shadow.asp
-            */
-
-            /*UNSELECT BUTTON*/
+            --number-spinner-plus-focus-color:green;
+            --number-spinner-plus-font-size:1em;
+            --number-spinner-plus-label-color:red;
+            --number-spinner-plus-label-font-size: calc(var(--number-spinner-plus-font-size)*0.80);
+            --number-spinner-plus-message-font-size: calc(var(--number-spinner-plus-font-size)*0.80);
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none; 
-            
-            width:fit-content;
+            width:100%;
         }
 
         message-container {
-            --message-container-text-size:var(--number-spinner-message-text-size);
-            
-            /*ERROR MESSAGE PROPERTIES*/
-            --message-container-error-text-color:var(--number-spinner-error-text-color);
-            --message-container-error-background-color:var(--number-spinner-error-background-color);
-            --message-container-error-border-left:var(--number-spinner-error-border-left);
-            --message-container-error-box-shadow:var(--number-spinner-error-box-shadow);              
+            --message-container-text-size: var(--number-spinner-plus-message-font-size);
+            --message-container-error-text-color: var(--number-spinner-error-text-color);
+            --message-container-ok-text-color: var(--number-spinner-ok-text-color);
+            --message-container-warning-text-color: var(--number-spinner-warning-text-color);
 
-            /*OK MESSAGE PROPERTIES*/
-            --message-container-ok-text-color:var(--number-spinner-ok-text-color);
-            --message-container-ok-background-color:var(--number-spinner-ok-background-color);
-            --message-container-ok-border-left:var(--number-spinner-ok-border-left);
-            --message-container-ok-box-shadow:var(--number-spinner-ok-box-shadow);             
-           
-            /* WARNING MESSAGE PROPERTIES*/
-            --message-container-warning-text-color:var(--number-spinner-warning-text-color);
-            --message-container-warning-background-color:var(--number-spinner-warning-background-color);
-            --message-container-warning-border-left:var(--number-spinner-warning-border-left);
-            --message-container-warning-box-shadow:var(--number-spinner-warning-box-shadow);      
         }
 
         .rowSpinner {
-          width: 100%;
-          @apply(--layout-horizontal);
-        }
-        .columnSpinner {
-          width: 50%;
-          @apply(--layout-horizontal);
-        }
-
-        /*SPINNER CONTAINER PROPERTIES*/
-        .spinnerContainer {
-            @apply(--layout-vertical);
-            float:right;
-        }
-
-        .right {            border-bottom:1px solid #AAAAAA;}
-
-        .spinner {
+            width: 100%;
             @apply(--layout-horizontal);
-            align-items:center;
-
-            flex-grow:1;
+            margin-top: 2px;
+            margin-bottom: 2px;
         }
 
-        .spinner[active] {
-            border-bottom:1px solid var(--number-spinner-color);
-        }      
-
-        /*INPUT PROPRETIES*/
         input {
-            line-height:16px;
-            font-size:14px;
-            min-width: 160px;
-            border:0px;
-            text-align:right;
+            width: 100%;
+            border: 0px;
+            text-align: left;
             user-select: none;
+            font-size: var(--number-spinner-plus-font-size);
+            width: 100%;
+            color: var(--number-spinner-plus-focus-color);
+            text-transform: lowercase;
+
         }
-        
+
         input[discrete] {
-          pointer-events:none;
+            pointer-events: none;
         }
 
         input:focus {
             outline: none;
-            border:0px;
-        }        
+            border-bottom: 0px;
+        }
 
         /*ICON PROPERTIES*/
         iron-icon {
-            height:8px;
-            width:8px;
+            height: 8px;
+            width: 8px;
         }
 
         .spin {
-            cursor:pointer;
+            cursor: pointer;
         }
 
-        /*DOWN BUTTON PROPERTIES*/
+        .spinner {
+
+                border-bottom:1px solid #AAAAAA;
+
+
+        }
+        .spinner[active] {
+
+            border-bottom:1px solid var(--number-spinner-plus-focus-color);
+
+        }
+
         .down {
             width: 0;
             height: 0;
             border-style: solid;
             border-width: 6px 4px 0 4px;
             border-color: #AAAAAA transparent transparent transparent;
-            
-            /*UNSELECT BUTTON*/
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none; 
         }
 
         .down:hover {
-            border-color:red transparent transparent transparent;
+            border-color:var(--number-spinner-plus-focus-color) transparent transparent transparent;
         }
 
-        /*UP BUTTON PROPERTIES*/
         .up {
             width: 0;
             height: 0;
             border-style: solid;
             border-width: 0 4px 6px 4px;
             border-color: transparent transparent #AAAAAA transparent;
-            
-            /*UNSELECT BUTTON*/
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none; 
         }
 
         .label {
-          text-transform: lowercase;
+            text-transform: lowercase;
+            color:var(--number-spinner-plus-label-color);
+            font-size:var(--number-spinner-plus-label-font-size);
         }
 
         .up:hover {
             border-color: transparent transparent red transparent;
         }
     </style>
-
-<!--
-
-  SPINNER IMPLEMENTATION (HTML)
-
---> 
-    <div class="spinner" id="spinner">
-        <div class="rowSpinner">
-          <div class="columnSpinner">
-            <div class="label">[[label]]</div>
+      <div class="spinner" id="spinner">
+          <div class="label">[[label]]</div>
+          <div class="rowSpinner">
+              <input id="input" is="iron-input" prevent-invalid-input allowed-pattern="[0-9.+-]"
+                     value="{{value::change}}" on-focus="_openDropdown" on-focusout="_closeDropdown"
+                     discrete$="[[discrete]]">
+              <div style="width:8px"></div>
+              <div class="spinnerContainer">
+                  <div>
+                      <div class="spin up" on-tap="_up" on-mouseout="_closeDropdown"></div>
+                  </div>
+                  <div style="height:2px;"></div>
+                  <div>
+                      <div class="spin down" on-tap="_down" on-mouseout="_closeDropdown"></div>
+                  </div>
+              </div>
           </div>
-          <div class="columnSpinner right">
-            <input id="input" is="iron-input" prevent-invalid-input allowed-pattern="[0-9.+-]" value="{{value::change}}" on-focus="_openDropdown" on-focusout="_closeDropdown" discrete$="[[discrete]]">
-            <div style="width:8px"></div>
-            <div class="spinnerContainer">
-                <div><div class="spin up" on-tap="_up" on-mouseout="_closeDropdown"></div></div>
-                <div style="height:2px;"></div>
-                <div><div class="spin down" on-tap="_down" on-mouseout="_closeDropdown"></div></div>
-            </div>
-          </div>
-        </div>
-    </div>    
-    <number-spinner-validator-plus value="{{value}}" allowed-numbers="[[values]]" min-error="[[min]]" max-error="[[max]]" step-warning="[[step]]" initial-value="[[initialValue]]" error-flag="{{errorFlag}}" warning-flag="{{warningFlag}}" message="{{message}}"></number-spinner-validator-plus>
-    <message-container error-flag="[[errorFlag]]" warning-flag="[[warningFlag]]" message="[[message]]"></message-container>
+      </div>
+      </div>
+      <number-spinner-validator-plus value="{{value}}" allowed-numbers="[[values]]" min-error="[[min]]"
+                                     max-error="[[max]]" step-warning="[[step]]" initial-value="[[initialValue]]"
+                                     error-flag="{{errorFlag}}" warning-flag="{{warningFlag}}"
+                                     message="{{message}}"></number-spinner-validator-plus>
+      <message-container error-flag="[[errorFlag]]" warning-flag="[[warningFlag]]"
+                         message="[[message]]"></message-container>
   </template>
-
-<!--
-
-  SPINNER ENGINE (Polymer)
-
---> 
   <script>
     Polymer({
-
       is: 'number-spinner-plus',
-
       // READY FUNCTION: If is a discrete spinner, inizialize the index, if is a auto-sorting spinner, sort numbers*/
       ready:function() { 
         if(this.discrete){
@@ -217,7 +170,6 @@
         };
         this.initialValue=this.value;
       },
-
       // OBSERVER: For future features
       _controlValueInserted:function(e) {
       },

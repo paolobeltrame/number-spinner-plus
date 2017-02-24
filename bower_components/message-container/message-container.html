@@ -6,22 +6,17 @@
         .message {
           margin-top: 2%;
           margin-bottom: 2%;
-          padding:2% 2% 2% 2%;
           font-size:var(--message-container-text-size,12px);
         }
 
         .error{
           color:var(--message-container-error-text-color,darkred); 
-          background-color: var(--message-container-error-background-color,rgba(245, 0, 0, 0.60));  
-          border-left:var(--message-container-error-border-left,6px solid darkred);
-          box-shadow:var(--message-container-error-box-shadow, 0 2px 4px 0 rgba(245, 0, 0, 0.25), 0 4px 10px 0 rgba(245, 0, 0, 0.2));
+
         }
 
         .ok{
-          color:var(--message-container-ok-text-color,darkgreen); 
-          background-color:var(--message-container-ok-background-color,rgba(0, 245, 0, 0.60));
-          border-left:var(--message-container-ok-border-left,6px solid darkgreen);
-          box-shadow:var(--message-container-ok-box-shadow,0 2px 4px 0 rgba(0, 245, 0, 0.25), 0 4px 10px 0 rgba(0, 245, 0, 0.2));
+          color:var(--message-container-ok-text-color, rgba(240, 0, 206, 0.5));
+
         }
 
         .ok[hideOk]{
@@ -30,14 +25,12 @@
 
         .warning{
           color: var(--message-container-warning-text-color,rgb(139,139,0));
-          background-color: var(--message-container-warning-background-color,rgba(245, 245, 0, 0.60));
-          border-left: var(--message-container-warning-border-left,6px solid rgb(139,139,0));
-          box-shadow: var (--message-container-warning-box-shadow,0 2px 4px 0 rgba(245, 245, 0, 0.25), 0 4px 10px 0 rgba(245, 245, 0, 0.2));
         }
       </style>
 
       <div class$="[[generateClass(errorFlag,warningFlag,message)]]">
-        <i class$="[[generateMessageIcon(errorFlag,warningFlag,message)]]"></i> [[generateMessage(errorFlag,warningFlag,message)]]
+        <!--<i class$="[[generateMessageIcon(errorFlag,warningFlag,message)]]"></i>-->
+          [[generateMessage(errorFlag,warningFlag,message)]]
       </div>
       
   </template>
