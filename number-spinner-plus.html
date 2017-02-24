@@ -24,10 +24,10 @@
         :host {
             padding:8px 0px 8px 0px;
             display: block;
-            --number-spinner-color:red;
-            --number-spinner-plus-focus-color:green;
+            --number-spinner-plus-focus-color:grey;
+            --number-spinner-plus-font-color:black;
             --number-spinner-plus-font-size:1em;
-            --number-spinner-plus-label-color:red;
+            --number-spinner-plus-label-color:grey;
             --number-spinner-plus-label-font-size: calc(var(--number-spinner-plus-font-size)*0.80);
             --number-spinner-plus-message-font-size: calc(var(--number-spinner-plus-font-size)*0.80);
             -webkit-user-select: none;
@@ -52,14 +52,14 @@
         }
 
         input {
-            backgrund-color:trasparent;
+            background-color:transparent;
             width: 100%;
             border: 0px;
             text-align: left;
             user-select: none;
             font-size: var(--number-spinner-plus-font-size);
             width: 100%;
-            color: var(--number-spinner-plus-focus-color);
+            color: var(--number-spinner-plus-font-color);
             text-transform: lowercase;
 
         }
