@@ -4,6 +4,7 @@
 <link rel="import" href="../bower_components/iron-input/iron-input.html">
 <link rel="import" href="../bower_components/number-spinner-validator-plus/number-spinner-validator-plus.html">
 <link rel="import" href="../bower_components/message-container/message-container.html">
+<script src="bower_components/d3/d3.js"></script>
 
 <!--
 `number-spinner-plus`
@@ -182,7 +183,7 @@
             <div class="label">[[label]]</div>
           </div>
           <div class="columnSpinner right">
-            <input id="input" is="iron-input" prevent-invalid-input allowed-pattern="[0-9.+-]" value="{{value::change}}" on-focus="_openDropdown" on-focusout="_closeDropdown" discrete$="[[discrete]]">
+            <input id="input" is="iron-input" prevent-invalid-input allowed-pattern="[0-9.+-]"  on-keyup="_controlValueInserted" value="{{value::change}}" on-focus="_openDropdown" on-focusout="_closeDropdown" discrete$="[[discrete]]">
             <div style="width:8px"></div>
             <div class="spinnerContainer">
                 <div><div class="spin up" on-tap="_up" on-mouseout="_closeDropdown"></div></div>
@@ -192,8 +193,25 @@
           </div>
         </div>
     </div>    
-    <number-spinner-validator-plus value="{{value}}" allowed-numbers="[[values]]" min-error="[[min]]" max-error="[[max]]" step-warning="[[step]]" initial-value="[[initialValue]]" error-flag="{{errorFlag}}" warning-flag="{{warningFlag}}" message="{{message}}"></number-spinner-validator-plus>
-    <message-container error-flag="[[errorFlag]]" warning-flag="[[warningFlag]]" message="[[message]]"></message-container>
+    <number-spinner-validator-plus
+      id="numberSpinnerValidatorPlus"
+      value="{{value}}"
+      initial-value="[[initialValue]]" 
+      allowed-numbers="[[values]]" 
+      min-error="[[min]]" 
+      max-error="[[max]]" 
+      step-warning="[[step]]"
+      error-flag="{{errorFlag}}" 
+      warning-flag="{{warningFlag}}" 
+      message="{{message}}" 
+      digits="[[digits]]">
+    </number-spinner-validator-plus>
+    <message-container 
+      error-flag="[[errorFlag]]" 
+      warning-flag="[[warningFlag]]"
+      message="[[message]]" 
+      digits="[[digits]]">
+    </message-container>
   </template>
 
 <!--
@@ -210,24 +228,55 @@
       ready:function() { 
         if(this.discrete){
           this.value=this.values[this.initialIndex];
+          this.inputValue=this.values[this.initialIndex];
           this.indexVisualized=this.initialIndex;
           if(this.autoSort) {
-            values.sort();
+            this.values.sort();
           };
         };
-        this.initialValue=this.value;
+        this.initialValue=(this.value==null ||this.value==undefined ? + this.inputValue : this.value);
       },
 
-      // OBSERVER: For future features
+      // RESET FLAGS FUNCTION
+      resetFlags:function() {
+        this.errorFlag=false;
+        this.warningFlag=false;
+      },
+
+      // FORMAT NUMBER (USED MANY TIMES, ONLY FOR A BETTER READABILITY)
+      formatNumber:function(numberToFormat) {
+        return parseFloat(d3.format("."+this.step+"r")(numberToFormat));
+      },
+
+      // CONTROLLER on-input: CALL CONTROLLER OF VALIDATOR
       _controlValueInserted:function(e) {
+        console.log("L'evento ha prodotto il numero "+e.srcElement.value);
+          console.log("EVENTO DENTRO LO SPINNER");
+          console.log(e);
+        console.log(isNaN(e.target.value));
+        if(!(isNaN(e.target.value)&&e.target.value==undefined)) {
+          this.value=e.target.value; //currentTarget
+          if(this.value!="-") {// - AND .
+            this.$.numberSpinnerValidatorPlus._controlValue(e);
+          }
+          //IF THERE ARE ONLY MINUS SIMBOL, IS OK!
+          else{
+            this.resetFlags();
+          };
+        };
+      console.log("Finito di controllare. value = "+this.value)
       },
 
       // DROPDOWN FUNCTIONS
        _openDropdown:function(e) {
+        console.log("OPENDROP EVENT");
+        console.log(e);
         this.toggleAttribute("active",true,this.$.spinner);
       },
           
       _closeDropdown:function(e) {
+                console.log("CLOSEDROP EVENT");
+                console.log(e);
         this.toggleAttribute("active",false,this.$.spinner);
       },
 
@@ -236,7 +285,7 @@
         // NOT DISCRETE: Free numbers
         if(!this.discrete) {
           // If it reaches the MAX with step then sets the value to MAX (do not exceed)
-          this.value=((+this.value+this.step<this.max) ? +this.value+this.step : this.max);
+          this.value=this.formatNumber((+this.value+this.step<this.max) ? +this.value+this.step : this.max);   
         }
         // DISCRETE: Values fixed 
         else {
@@ -261,7 +310,7 @@
         // NOT DISCRETE: Free numbers
         if(!this.discrete) {
           // If it reaches the MIN with step then sets the value to MIN (do not exceed)
-          this.value=((+this.value-this.step>this.min) ? +this.value-this.step : this.min);
+          this.value=this.formatNumber((+this.value-this.step>this.min) ? +this.value-this.step : this.min);      
         }
         // DISCRETE: Values fixed
         else {
@@ -279,6 +328,7 @@
           };
         }; 
         this.toggleAttribute("active",true,this.$.spinner);
+        
       },
 
       // NUMBER-SPINNER PROPERTIES
@@ -286,9 +336,9 @@
 
           // VALUE
           value:{
+            type:Number,
             value:null,
             notify:true,
-            observer:"_controlValueInserted", // OBSERVER for future new features
           },
 
           values:{
@@ -341,7 +391,7 @@
 
           digits:{
             type:Number,
-            value:null,
+            value:8,
           },
 
           // DISCRETE PROPERTIES

@@ -46,7 +46,7 @@
         Polymer({
 
             is: 'message-container',
-            
+
             // FUNTCION generateClass: Generate the correct class
             generateClass:function (errorFlag,warningFlag) {
                 
@@ -105,14 +105,11 @@
                     };
                 };
             },       
-            _mC:function(e) {
-              console.log(e)
-            },
+
             properties:{
               message:{
                 type:String,
                 value:"ERR/WARN",
-                observer:"_mC"
               },
               
               // ERROR PROPRETIES
@@ -136,7 +133,13 @@
               warningFlag:{
                 type:Boolean,
                 value:false,
-            },      
+              },
+
+              digits:{
+                type:Number,
+                value:8,
+                notify:true,
+              },
           },
         }); 
     </script>
