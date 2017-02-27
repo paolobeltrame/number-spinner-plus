@@ -196,7 +196,6 @@
     <number-spinner-validator-plus
       id="numberSpinnerValidatorPlus"
       value="{{value}}"
-      initial-value="[[initialValue]]" 
       allowed-numbers="[[values]]" 
       min-error="[[min]]" 
       max-error="[[max]]" 
@@ -210,7 +209,8 @@
       error-flag="[[errorFlag]]" 
       warning-flag="[[warningFlag]]"
       message="[[message]]" 
-      digits="[[digits]]">
+      digits="[[digits]]"
+      hide-ok="[[hideEmptyFieldOkMessage()]]">
     </message-container>
   </template>
 
@@ -224,7 +224,7 @@
 
       is: 'number-spinner-plus',
 
-      // READY FUNCTION: If is a discrete spinner, inizialize the index, if is a auto-sorting spinner, sort numbers*/
+      // READY FUNCTION: If is a discrete spinner, inizialize the index, if is a auto-sorting spinner, sort numbers, and selectRounding
       ready:function() { 
         if(this.discrete){
           this.value=this.values[this.initialIndex];
@@ -234,7 +234,22 @@
             this.values.sort();
           };
         };
-        this.initialValue=(this.value==null ||this.value==undefined ? + this.inputValue : this.value);
+        this.selectRounding(this.digits,this.step);
+        this.value=d3.format("."+this.digits+"r")(this.value);
+      },
+
+      // SELECT ROUNDING: Used if step or digits aren't specified
+      selectRounding:function(digits,step)
+      {
+        if(this.step==null||this.step==undefined) {
+          this.step=this.digits;
+        }
+        if(this.digits==null||this.digits==undefined) {
+          // IF DIGITS UNDECLARED, DIGITS=EXP(STEP)+EXP(MAX)
+          this.digits=parseInt(this.step.toExponential().substr((this.step.toExponential()).indexOf("e")+2,this.step.toExponential().lenght))
+                      +parseInt(this.max.toExponential().substr((this.max.toExponential()).indexOf("e")+2,this.max.toExponential().lenght));
+          console.log(this.digits);
+        };
       },
 
       // RESET FLAGS FUNCTION
@@ -245,56 +260,59 @@
 
       // FORMAT NUMBER (USED MANY TIMES, ONLY FOR A BETTER READABILITY)
       formatNumber:function(numberToFormat) {
-        return parseFloat(d3.format("."+this.step+"r")(numberToFormat));
+        return parseFloat(d3.format("."+this.digits+"r")(numberToFormat));
       },
 
       // CONTROLLER on-input: CALL CONTROLLER OF VALIDATOR
       _controlValueInserted:function(e) {
-        console.log("L'evento ha prodotto il numero "+e.srcElement.value);
-          console.log("EVENTO DENTRO LO SPINNER");
-          console.log(e);
-        console.log(isNaN(e.target.value));
         if(!(isNaN(e.target.value)&&e.target.value==undefined)) {
-          this.value=e.target.value; //currentTarget
-          if(this.value!="-") {// - AND .
-            this.$.numberSpinnerValidatorPlus._controlValue(e);
-          }
-          //IF THERE ARE ONLY MINUS SIMBOL, IS OK!
-          else{
-            this.resetFlags();
-          };
+          this.value=e.target.value; 
         };
-      console.log("Finito di controllare. value = "+this.value)
+        if(this.value!="-"&&this.value!=".") {
+          this.$.numberSpinnerValidatorPlus._controlValue(e);
+        }
+          //IF THERE ARE ONLY MINUS SIMBOL OR DOT, IS OK!
+        else{
+          this.resetFlags();
+        };
       },
 
-      // DROPDOWN FUNCTIONS
+      // OPEN DROPDOWN FUNCTIONS
        _openDropdown:function(e) {
-        console.log("OPENDROP EVENT");
-        console.log(e);
         this.toggleAttribute("active",true,this.$.spinner);
       },
-          
+
+      // CLOSE DROPDOWN FUNCTIONS, CONTROL IF TAB IS PRESSED    
       _closeDropdown:function(e) {
-                console.log("CLOSEDROP EVENT");
-                console.log(e);
         this.toggleAttribute("active",false,this.$.spinner);
+        if(e.type="focusout"&&e.type!="mouseout") {
+          this._controlValueInserted(e);
+        };
       },
 
       // BUTTON UP FUNCTION
-      _up:function() {
-        // NOT DISCRETE: Free numbers
+      _up:function(e) {
+        // 1. CONTROL ANY PREVIOUS USER INPUT
+        this._controlValueInserted(e);
+        // 2.1. NOT DISCRETE: Free numbers
         if(!this.discrete) {
+          if(this.value!="")
+          {
           // If it reaches the MAX with step then sets the value to MAX (do not exceed)
-          this.value=this.formatNumber((+this.value+this.step<this.max) ? +this.value+this.step : this.max);   
+            this.value=this.formatNumber((+this.value+this.step<this.max) ? +this.value+this.step : this.max);
+          }
+          else{
+            this.value=this.max;
+          }; 
         }
-        // DISCRETE: Values fixed 
+        // 2.2. DISCRETE: Values fixed 
         else {
           if(this.indexVisualized<this.values.length-1){
             this.value=this.values[this.indexVisualized+1];
             this.indexVisualized=this.indexVisualized+1;
           }
           else{
-            // CIRCULAR FEATURE
+            // 2.2.1 CIRCULAR FEATURE
             if(this.circular)
             {
               this.value=this.values[0];
@@ -302,33 +320,49 @@
             };
           };    
         };
+
+        // 3. ADD ZEROS
+        this.value=d3.format("."+this.digits+"r")(this.value);
         this.toggleAttribute("active",true,this.$.spinner);    
       },
 
-      // BUTTON DOWN FUNCTION
-      _down:function() {
-        // NOT DISCRETE: Free numbers
+      // BUTTON DOWN FUNCTION, SAME AS UP
+      _down:function(e) {
+        this._controlValueInserted(e);
+
         if(!this.discrete) {
-          // If it reaches the MIN with step then sets the value to MIN (do not exceed)
-          this.value=this.formatNumber((+this.value-this.step>this.min) ? +this.value-this.step : this.min);      
+          if(this.value!="") {
+            this.value=this.formatNumber((+this.value-this.step>this.min) ? +this.value-this.step : this.min);
+          }
+          else{
+            this.value=this.min;
+          };      
         }
-        // DISCRETE: Values fixed
+
         else {
           if(this.indexVisualized>0){
             this.value=this.values[this.indexVisualized-1];
             this.indexVisualized=this.indexVisualized-1;
           }
+
           else{
-            // CIRCULAR FEATURE
             if(this.circular)
             {
               this.value=this.values[this.values.length-1];
               this.indexVisualized=this.values.length-1;
             };
           };
-        }; 
+        };
+        this.value=d3.format("."+this.digits+"r")(this.value);
         this.toggleAttribute("active",true,this.$.spinner);
-        
+      },
+
+      // FUNTCION THAT HIDE THE OK-MESSAGE IF THE FIELD IS EMPTY
+      hideEmptyFieldOkMessage:function(){
+        if(this.value==""){
+          return true;
+        };
+        return false;
       },
 
       // NUMBER-SPINNER PROPERTIES
@@ -343,11 +377,6 @@
 
           values:{
             type:Array,
-            value:null,
-          },
-
-          initialValue:{
-            type:Number,
             value:null,
           },
 
@@ -391,7 +420,7 @@
 
           digits:{
             type:Number,
-            value:8,
+            value:null,
           },
 
           // DISCRETE PROPERTIES
