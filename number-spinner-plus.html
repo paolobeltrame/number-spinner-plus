@@ -89,7 +89,9 @@
             float:right;
         }
 
-        .right {            border-bottom:1px solid #AAAAAA;}
+        .right {
+          border-bottom:1px solid #AAAAAA;
+        }
 
         .spinner {
             @apply(--layout-horizontal);
@@ -183,7 +185,7 @@
             <div class="label">[[label]]</div>
           </div>
           <div class="columnSpinner right">
-            <input id="input" is="iron-input" prevent-invalid-input allowed-pattern="[0-9.+-]"  on-keyup="_controlValueInserted" value="{{value::change}}" on-focus="_openDropdown" on-focusout="_closeDropdown" discrete$="[[discrete]]">
+            <input id="input" is="iron-input" prevent-invalid-input allowed-pattern="[0-9.+-]"  on-keydown="_onKeyDown" value="{{value::change}}" on-focus="_openDropdown" on-focusout="_closeDropdown" discrete$="[[discrete]]">
             <div style="width:8px"></div>
             <div class="spinnerContainer">
                 <div><div class="spin up" on-tap="_up" on-mouseout="_closeDropdown"></div></div>
@@ -235,19 +237,22 @@
           };
         };
         this.selectRounding(this.digits,this.step);
-        this.value=d3.format("."+this.digits+"r")(this.value);
+        this._controlValueInserted()
       },
 
       // SELECT ROUNDING: Used if step or digits aren't specified
       selectRounding:function(digits,step)
       {
         if(this.step==null||this.step==undefined) {
+          this.digits=parseFloat(this.digits);
           this.step=this.digits;
         }
         if(this.digits==null||this.digits==undefined) {
           // IF DIGITS UNDECLARED, DIGITS=EXP(STEP)+EXP(MAX)
-          this.digits=parseInt(this.step.toExponential().substr((this.step.toExponential()).indexOf("e")+2,this.step.toExponential().lenght))
-                      +parseInt(this.max.toExponential().substr((this.max.toExponential()).indexOf("e")+2,this.max.toExponential().lenght));
+          this.step=parseFloat(this.step);
+          this.max=parseFloat(this.max);
+          this.digits=parseInt(this.step.toExponential().substr((this.step.toExponential()).indexOf("e")+2,this.step.toExponential().length))
+                      +parseInt(this.max.toExponential().substr((this.max.toExponential()).indexOf("e")+2,this.max.toExponential().length));
           console.log(this.digits);
         };
       },
@@ -261,6 +266,30 @@
       // FORMAT NUMBER (USED MANY TIMES, ONLY FOR A BETTER READABILITY)
       formatNumber:function(numberToFormat) {
         return parseFloat(d3.format("."+this.digits+"r")(numberToFormat));
+      },
+
+      //ON KEY DOWN, DELAY THE CONTROLLER
+      _onKeyDown:function(e){
+        var timeBetween=e.timeStamp-this.timePress;
+        if(timeBetween>100)
+        {
+          if(e.keyCode==38||e.keyIdentifier=="Up") {
+            this._up(e);
+          };
+          if(e.keyCode==40||e.keyIdentifier=="Down") {
+            this._down(e);
+          };
+          this._controlValueInserted(e);
+
+          this.timePress=e.timeStamp;
+        };
+
+        if(e.keyCode==33||e.keyIdentifier=="PageUp") {
+          this.value=d3.format("."+this.digits+"r")(this.max);
+        };
+        if(e.keyCode==34||e.keyIdentifier=="PageDown") {
+          this.value=d3.format("."+this.digits+"r")(this.min);
+        };
       },
 
       // CONTROLLER on-input: CALL CONTROLLER OF VALIDATOR
@@ -464,6 +493,11 @@
           warningFlag:{
             type:Boolean,
             value:false,
+          },
+
+          //TIME PRESS
+          timePress:{
+            value:null,
           },
       },
     });
